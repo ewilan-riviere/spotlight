@@ -6,6 +6,10 @@
 
 Scan system like disk usage or big files.
 
+> [!IMPORTANT]
+>
+> Not stable.
+
 ## Install
 
 ```bash
