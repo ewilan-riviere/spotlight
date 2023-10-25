@@ -42,7 +42,6 @@ func BigFiles(size int, extensions []string, send bool) string {
 	}
 
 	if os == "linux" {
-		fmt.Print(size)
 		command = strings.Replace(command, "SIZE", fmt.Sprintf("%d", size), 1)
 	} else if os == "darwin" {
 		command = strings.Replace(command, "SIZE", fmt.Sprintf("%d", size), 1)
