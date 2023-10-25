@@ -60,10 +60,13 @@ func main() {
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 			notify, _ := cmd.Flags().GetBool("notify")
+			fmt.Println("Disk:")
 			health.DiskUsage(notify)
 			fmt.Println("")
+			fmt.Println("RAM:")
 			health.RamUsage(notify)
 			fmt.Println("")
+			fmt.Println("CPU:")
 			health.CpuUsage(notify)
 		},
 	}
