@@ -1,0 +1,30 @@
+name: Go
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ["1.21.1"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Create .env.testing
+        run: |
+          touch .env.testing
+          echo DISCORD_WEBHOOK=${{ secrets.DISCORD_WEBHOOK }} >> .env.testing
+          echo SLACK_WEBHOOK=${{ secrets.SLACK_WEBHOOK }} >> .env.testing
+          echo DISCORD_WEBHOOK_TOKEN=${{ secrets.DISCORD_WEBHOOK_TOKEN }} >> .env.testing
+          echo SLACK_WEBHOOK_TOKEN=${{ secrets.SLACK_WEBHOOK_TOKEN }} >> .env.testing
+      - name: Install dependencies
+        run: |
+          go get -v -t -d ./...
+      - name: Run tests
+        run: |
+          go test -v ./...
