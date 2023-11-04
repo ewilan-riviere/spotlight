@@ -4,7 +4,7 @@
 [![tests][tests-src]][tests-href]
 [![license][license-src]][license-href]
 
-Scan system like disk usage or big files.
+Scan system for system health, powered by Go.
 
 > [!IMPORTANT]
 >
@@ -18,10 +18,10 @@ go install github.com/ewilan-riviere/spotlight@latest
 
 ## Usage
 
-### Disk usage
+### Disk
 
 ```bash
-spotlight disk-usage
+spotlight disk
 ```
 
 Output will be like:
@@ -31,10 +31,42 @@ Filesystem     Type  Size  Used Avail Use% Mounted on
 /dev/sda1      ext4  150G   56G   89G  39% /
 ```
 
-### Big files
+### RAM
 
 ```bash
-spotlight big-files
+spotlight ram
+```
+
+Output will be like:
+
+```bash
+RAM: 3.7G / 7.7G
+```
+
+### CPU
+
+```bash
+spotlight cpu
+```
+
+Output will be like:
+
+```bash
+CPU: 0.00% / 0.00%
+```
+
+### Health
+
+```bash
+spotlight health
+```
+
+Output will be Disk, RAM and CPU.
+
+### files
+
+```bash
+spotlight files
 ```
 
 Options:

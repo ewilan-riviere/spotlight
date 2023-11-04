@@ -1,4 +1,4 @@
-// Package spotlight to scan system like disk usage or big files.
+// Package spotlight to scan system for system health.
 //
 // Examples/readme can be found on the GitHub page at https://github.com/ewilan-riviere/spotlight
 //
@@ -8,8 +8,25 @@
 //
 // Then you can use it like this:
 //
-//	spotlight disk-usage
-//	spotlight big-files -e=jpg -e=png -s=50
+// Check disk usage.
+//
+//	spotlight disk
+//
+// Check RAM usage.
+//
+//	spotlight ram
+//
+// Check CPU usage.
+//
+//	spotlight cpu
+//
+// Check disk, RAM and CPU usage.
+//
+//	spotlight health
+//
+// Check big files.
+//
+//	spotlight files -e=jpg -e=png -s=50
 package main
 
 import (
