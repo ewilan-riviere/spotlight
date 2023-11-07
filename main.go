@@ -51,7 +51,8 @@ func main() {
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 			notify, _ := cmd.Flags().GetBool("notify")
-			health.DiskUsage(notify)
+			output := health.DiskUsage(notify)
+			fmt.Println(output)
 		},
 	}
 
@@ -62,7 +63,9 @@ func main() {
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 			notify, _ := cmd.Flags().GetBool("notify")
-			health.RamUsage(notify)
+			output := health.RamUsage(notify)
+
+			fmt.Println(output)
 		},
 	}
 
@@ -73,7 +76,9 @@ func main() {
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 			notify, _ := cmd.Flags().GetBool("notify")
-			health.CpuUsage(notify)
+			output := health.CpuUsage(notify)
+
+			fmt.Println(output)
 		},
 	}
 
@@ -84,9 +89,13 @@ func main() {
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 			notify, _ := cmd.Flags().GetBool("notify")
-			health.DiskUsage(notify)
-			health.RamUsage(notify)
-			health.CpuUsage(notify)
+			disk := health.DiskUsage(notify)
+			ram := health.RamUsage(notify)
+			cpu := health.CpuUsage(notify)
+
+			fmt.Println(disk)
+			fmt.Println(ram)
+			fmt.Println(cpu)
 		},
 	}
 
@@ -100,7 +109,8 @@ func main() {
 			size, _ := cmd.Flags().GetInt("size")
 			exts, _ := cmd.Flags().GetStringArray("exts")
 
-			health.BigFiles(size, exts, notify)
+			output := health.BigFiles(size, exts, notify)
+			fmt.Println(output)
 		},
 	}
 

@@ -28,3 +28,12 @@ jobs:
       - name: Run tests
         run: |
           go test -v ./...
+      - name: Test commands
+        run: |
+          go build -o spotlight
+          ./spotlight -h
+          ./spotlight disk
+          ./spotlight ram
+          ./spotlight cpu
+          ./spotlight files
+          ./spotlight ping -d=github.com
