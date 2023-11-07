@@ -31,9 +31,9 @@ jobs:
       - name: Test commands
         run: |
           go build -o spotlight
-          spotlight -h
-          spotlight disk
-          spotlight ram
-          spotlight cpu
-          spotlight files
-          spotlight ping -d=github.com
+          ./spotlight -h
+          ./spotlight disk
+          ./spotlight ram
+          ./spotlight cpu
+          ./spotlight files
+          ./spotlight ping -d=github.com
