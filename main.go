@@ -27,12 +27,19 @@
 // Check big files.
 //
 //	spotlight files -e=jpg -e=png -s=50
+//
+// Check websites
+//
+//	spotlight ping -d=example.com -d=example2.com
 package main
 
 import (
 	"fmt"
 
+	"github.com/ewilan-riviere/notifier/notify"
+	"github.com/ewilan-riviere/spotlight/pkg/dotenv"
 	"github.com/ewilan-riviere/spotlight/pkg/health"
+	"github.com/ewilan-riviere/spotlight/pkg/ping"
 	"github.com/spf13/cobra"
 )
 
@@ -77,13 +84,8 @@ func main() {
 		Args:  cobra.MinimumNArgs(0),
 		Run: func(cmd *cobra.Command, args []string) {
 			notify, _ := cmd.Flags().GetBool("notify")
-			fmt.Println("Disk:")
 			health.DiskUsage(notify)
-			fmt.Println("")
-			fmt.Println("RAM:")
 			health.RamUsage(notify)
-			fmt.Println("")
-			fmt.Println("CPU:")
 			health.CpuUsage(notify)
 		},
 	}
@@ -102,6 +104,57 @@ func main() {
 		},
 	}
 
+	var cmdPing = &cobra.Command{
+		Use:   "ping",
+		Short: "Ping a host.",
+		Long:  `Ping a host.`,
+		Args:  cobra.MinimumNArgs(0),
+		Run: func(cmd *cobra.Command, args []string) {
+			notify, _ := cmd.Flags().GetBool("notify")
+			domains, _ := cmd.Flags().GetStringArray("domains")
+
+			if len(domains) == 0 {
+				var domainsDotenv = dotenv.Make().Domains
+				domains = domainsDotenv
+			}
+			websites := ping.Make(domains)
+
+			for _, website := range websites {
+				var output = ""
+				fmt.Println(website.Domain)
+				fmt.Println("Ping:", website.PingSuccess)
+				fmt.Println("Curl:", website.CurlSuccess)
+				fmt.Println("Http:", website.HttpCode)
+				fmt.Println("HttpRedirect:", website.HttpRedirect)
+				fmt.Println("UseHttp2:", website.UseHttp2)
+				fmt.Println("UseHttps:", website.UseHttps)
+				fmt.Println("Server:", website.Server)
+				fmt.Println("IpAdress:", website.IpAdress)
+				fmt.Println("Time:", website.Time)
+
+				if website.Ok {
+					output += "\n"
+					output += "✅ " + website.Domain + "\n"
+				} else {
+					output += "\n"
+					output += "❌ " + website.Domain + "\n"
+					output += "Ping: " + fmt.Sprintf("%t", website.PingSuccess) + "\n"
+					output += "Curl: " + fmt.Sprintf("%t", website.CurlSuccess) + "\n"
+					output += "Http: " + fmt.Sprintf("%d", website.HttpCode) + "\n"
+					output += "HttpRedirect: " + fmt.Sprintf("%t", website.HttpRedirect) + "\n"
+					output += "UseHttp2: " + fmt.Sprintf("%t", website.UseHttp2) + "\n"
+					output += "UseHttps: " + fmt.Sprintf("%t", website.UseHttps) + "\n"
+					output += "Server: " + website.Server + "\n"
+					output += "IpAdress: " + website.IpAdress + "\n"
+					output += "Time: " + website.Time + "\n"
+				}
+
+				notifier(notify, "```"+output+"```")
+				fmt.Println("")
+			}
+		},
+	}
+
 	cmdDiskUsage.Flags().BoolP("notify", "n", false, "Send notification to Discord or Slack.")
 	cmdRamUsage.Flags().BoolP("notify", "n", false, "Send notification to Discord or Slack.")
 	cmdCpuUsage.Flags().BoolP("notify", "n", false, "Send notification to Discord or Slack.")
@@ -109,6 +162,8 @@ func main() {
 	cmdBigFiles.Flags().IntP("size", "s", 100, "File size to consider in M, default 100M.")
 	cmdBigFiles.Flags().StringArrayP("exts", "e", []string{""}, "File extensions to consider. Can be repeated for multiple extensions.")
 	cmdBigFiles.Flags().BoolP("notify", "n", false, "Send notification to Discord or Slack.")
+	cmdPing.Flags().BoolP("notify", "n", false, "Send notification to Discord or Slack.")
+	cmdPing.Flags().StringArrayP("domains", "d", []string{""}, "Domains to ping. Can be repeated for multiple domains.")
 
 	var rootCmd = &cobra.Command{Use: "spotlight"}
 	rootCmd.AddCommand(cmdDiskUsage)
@@ -116,5 +171,20 @@ func main() {
 	rootCmd.AddCommand(cmdCpuUsage)
 	rootCmd.AddCommand(cmdHealth)
 	rootCmd.AddCommand(cmdBigFiles)
+	rootCmd.AddCommand(cmdPing)
 	rootCmd.Execute()
+}
+
+func notifier(send bool, output string) {
+	if send {
+		de := dotenv.Make()
+		for _, service := range de.Services {
+			if service == "discord" {
+				notify.Notifier(output, de.DiscordWebhook)
+			}
+			if service == "slack" {
+				notify.Notifier(output, de.SlackWebhook)
+			}
+		}
+	}
 }

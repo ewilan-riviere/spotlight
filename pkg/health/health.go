@@ -1,14 +1,13 @@
 package health
 
 import (
-	"bytes"
 	"fmt"
-	"os/exec"
 	"runtime"
 	"strings"
 
 	"github.com/ewilan-riviere/notifier/notify"
 	"github.com/ewilan-riviere/spotlight/pkg/dotenv"
+	"github.com/ewilan-riviere/spotlight/pkg/terminal"
 )
 
 func DiskUsage(send bool) string {
@@ -18,9 +17,9 @@ func DiskUsage(send bool) string {
 		"windows": "wmic logicaldisk get size,freespace,caption",
 	}
 
-	command := selectCommand(commands, "df -h /")
-	output := execCommand(command)
-	notifier(send, "```"+output+"```")
+	command := terminal.SelectCommand(commands, "df -h /")
+	output := terminal.ExecCommand(command)
+	notifier(send, "```\nDisk\n"+output+"```")
 
 	return output
 }
@@ -32,9 +31,9 @@ func RamUsage(send bool) string {
 		"windows": `wmic OS get FreePhysicalMemory,TotalVisibleMemorySize /Value | awk -F"=" 'NR==1 { printf "%.2f GB\n", $2/1024/1024 } NR==2 { printf "%.2f GB\n", $2/1024/1024 }'`,
 	}
 
-	command := selectCommand(commands, "free -m")
-	output := execCommand(command)
-	notifier(send, "```"+output+"```")
+	command := terminal.SelectCommand(commands, "free -m")
+	output := terminal.ExecCommand(command)
+	notifier(send, "```\nRAM\n"+output+"```")
 
 	return output
 }
@@ -46,9 +45,9 @@ func CpuUsage(send bool) string {
 		"windows": `wmic cpu get loadpercentage | awk 'NR==2 {print $1 "%"}'`,
 	}
 
-	command := selectCommand(commands, "top -l 2 | grep -E '^CPU'")
-	output := execCommand(command)
-	notifier(send, "```"+output+"```")
+	command := terminal.SelectCommand(commands, "top -l 2 | grep -E '^CPU'")
+	output := terminal.ExecCommand(command)
+	notifier(send, "```\nCPU\n"+output+"```")
 
 	return output
 }
@@ -83,7 +82,7 @@ func BigFiles(size int, extensions []string, send bool) string {
 		command = strings.Replace(command, "EXTENSIONS ", files, 1)
 	}
 
-	output := execCommand(command)
+	output := terminal.ExecCommand(command)
 	notifier(send, output)
 
 	return ""
@@ -101,65 +100,4 @@ func notifier(send bool, output string) {
 			}
 		}
 	}
-}
-
-func selectCommand(commands map[string]string, defaultCommand string) string {
-	os := runtime.GOOS
-	command := defaultCommand
-
-	if _, ok := commands[os]; ok {
-		command = commands[os]
-	}
-
-	return command
-}
-
-func execCommand(command string) string {
-	var output string
-	if strings.Contains(command, "|") {
-		output = execPipeCommand(command)
-	} else {
-		output = execClassicCommand(command)
-	}
-
-	fmt.Print(output)
-
-	return output
-}
-
-func execClassicCommand(command string) string {
-	split := strings.Split(command, " ")
-	name := split[0]
-	args := split[1:]
-
-	cmd := exec.Command(name, args...)
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-	err := cmd.Run()
-	if err != nil {
-		fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
-		return ""
-	}
-
-	return out.String()
-}
-
-func execPipeCommand(command string) string {
-	args := []string{"-c", command}
-	cmd := exec.Command("bash", args...)
-
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-	err := cmd.Run()
-
-	if err != nil {
-		fmt.Println(err.Error())
-		return ""
-	}
-
-	return out.String()
 }

@@ -87,6 +87,14 @@ Output will be like:
 110M	/var/lib/docker/overlay2/...
 ```
 
+### websites
+
+Send a request to websites with `ping` and `curl` to check if they are up.
+
+```bash
+spotlight ping -d=example.com -d=example2.com
+```
+
 ## License
 
 [MIT](LICENSE) © Ewilan Rivière

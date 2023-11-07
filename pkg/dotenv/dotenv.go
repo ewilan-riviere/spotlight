@@ -14,6 +14,7 @@ type Dotenv struct {
 	DiscordWebhook string
 	SlackWebhook   string
 	Services       []string
+	Domains        []string
 }
 
 func Make() Dotenv {
@@ -27,6 +28,7 @@ func Make() Dotenv {
 		DiscordWebhook: os.Getenv("DISCORD_WEBHOOK"),
 		SlackWebhook:   os.Getenv("SLACK_WEBHOOK"),
 		Services:       strings.Split(os.Getenv("SERVICES"), ","),
+		Domains:        strings.Split(os.Getenv("DOMAINS"), ","),
 	}
 }
 
