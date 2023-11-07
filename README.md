@@ -87,7 +87,7 @@ Output will be like:
 110M	/var/lib/docker/overlay2/...
 ```
 
-### websites
+### ping
 
 Send a request to websites with `ping` and `curl` to check if they are up.
 
